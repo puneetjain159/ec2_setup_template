@@ -1,6 +1,7 @@
 {
     "Deployment": {
-        "ProjectName": "NewWordPressWebsite",
+        "ProjectName": "LandingPage",
+        "Company": "TxtReminders Inc",
         "DeploymentOwner": "Dustin Baker",
         "VPC": "vpc-01ec23e36e8ee9c90",
         "Region": "ca-central-1",
