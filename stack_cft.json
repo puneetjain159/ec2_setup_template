@@ -1,5 +1,5 @@
 {
-    "Description": "Group Data Lake Estate - Ingestion Stack",
+    "Description": "This is the stack to create the EC2 with SSH Capabilities",
     "Conditions": {
         "IsTrueOrFalse": {
             "Fn::Equals": [
