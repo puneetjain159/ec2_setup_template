@@ -166,7 +166,7 @@ def stack(config, stack_type, create_update):
         try:
             response_update_stack = client_cf.update_stack(
                 StackName=stack_name,
-                TemplateURL='https://s3-eu-west-1.amazonaws.com/' + deploy_template_loc,
+                TemplateURL=f'https://{code_zone_loc}.s3.ca-central-1.amazonaws.com/{deploy_template}',
                 Parameters=params,
                 Capabilities=['CAPABILITY_NAMED_IAM']
             )
