@@ -1,0 +1,26 @@
+{
+    "Deployment": {
+        "ProjectName": "NewWordPressWebsite",
+        "DeploymentOwner": "Dustin Baker",
+        "VPC": "vpc-01ec23e36e8ee9c90",
+        "Region": "ca-central-1",
+        "rEnvironmentName": "Dev"
+    },
+    "Stacks": {
+        "Ec2Stack": {
+            "DeployTemplate": "stack_cft.json",
+            "CREATE_STACK": true,
+            "UPDATE_STACK": false,
+            "EnvironmentParameters": {
+                "SubnetId": "subnet-0b2c6aa970ab7aaa8",
+                "AvailabilityZones": "ca-central-1a",
+                "InstanceType": "t3.nano",
+                "AmiId" : "ami-0730e12069ab20c26",
+                "Ec2Name": "NewWordPressWebsite_Master",
+                "EC2KeyName" : "WordPressKey"
+
+            }
+    }
+}
+}
+    

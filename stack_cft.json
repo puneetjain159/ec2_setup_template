@@ -1,0 +1,241 @@
+{
+    "Description": "Group Data Lake Estate - Ingestion Stack",
+    "Conditions": {
+        "IsTrueOrFalse": {
+            "Fn::Equals": [
+                "Value1",
+                "Value2"
+            ]
+        }
+    },
+    "Resources": {
+        "EC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZones"
+                },
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "false",
+                            "VolumeSize": 10,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "ProfileforEc2"
+                },
+                "ImageId": {
+                    "Ref": "AmiId"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "KeyName": {
+                    "Ref": "SSHKeyName"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "SecurityGroup",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "SubnetId": {
+                    "Ref": "SubnetId"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "Ec2Name"
+                        }
+                    }
+                ]
+            },
+            "DependsOn": [
+                "SecurityGroup"
+            ]
+        },
+        "EC2InstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Join": [
+                        "-",
+                        [
+                            {
+                                "Ref": "ProjectName"
+                            },
+                            "Ec2Role"
+                        ]
+                    ]
+                },
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [],
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "ProjectName"
+                                    },
+                                    "Ec2Policy"
+                                ]
+                            ]
+                        },
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Sid": "VisualEditor0",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "elasticmapreduce:*",
+                                        "elasticloadbalancing:*",
+                                        "iam:PassRole",
+                                        "sqs:*",
+                                        "ses:*",
+                                        "s3:*",
+                                        "glue:*",
+                                        "logs:*",
+                                        "sns:*",
+                                        "ec2:*",
+                                        "secretsmanager:*",
+                                        "rds:*",
+                                        "kms:*",
+                                        "sns:*",
+                                        "cloudwatch:*",
+                                        "autoscaling:*"
+                                    ],
+                                    "Resource": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "ProfileforEc2": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "EC2InstanceRole"
+                    }
+                ]
+            }
+        },
+        "SecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Enable SSH access and HTTP access on the inbound and outbound port",
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "SecurityGroupEgress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "ProjectName": {
+            "Description": "Name of the Data Projects Project. E.g. gdlk",
+            "Type": "String",
+            "Default": "no-project-name"
+        },
+        "InstanceType": {
+            "Description": "Name of the Data Projects Project. E.g. gdlk",
+            "Type": "String",
+            "Default": "no-project-name"
+        },
+        "VpcId": {
+            "Description": "VPC ID for resources to be deployed. E.g. vpc-0696eca6ab3abbe05",
+            "Type": "String",
+            "Default": "no-vpc-id"
+        },
+        "SubnetId": {
+            "Type": "String",
+            "Default": "ca-central-1a,ca-central-1b"
+        },
+        "AvailabilityZones": {
+            "Type": "String",
+            "Default": "ca-central-1a"
+        },
+        "rEnvironmentName": {
+            "Description": "rEnvironmentName for resources to be deployed. E.g. Dev",
+            "Type": "String",
+            "Default": "no-vpc-id"
+        },
+        "AmiId": {
+            "Description": "rEnvironmentName for resources to be deployed. E.g. Dev",
+            "Type": "String",
+            "Default": "no-vpc-id"
+        },
+        "Ec2Name": {
+            "Description": "Ec2Name . E.g. Dev",
+            "Type": "String",
+            "Default": "no-vpc-id"
+        },
+        "SSHKeyName": {
+            "Description": "SSH key name",
+            "Type": "String",
+            "Default": "no-vpc-id"
+        }
+    }
+}
